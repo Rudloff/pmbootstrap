@@ -46,7 +46,8 @@ work_version = "1"
 
 # Only save keys to the config file, which we ask for in 'pmbootstrap init'.
 config_keys = ["ccache_size", "device", "extra_packages", "jobs", "keymap",
-               "qemu_native_mesa_driver", "timezone", "ui", "user", "work"]
+               "linux_tree", "qemu_native_mesa_driver", "timezone", "ui",
+               "user", "work"]
 
 # Config file/commandline default values
 # $WORK gets replaced with the actual value for args.work (which may be
@@ -67,6 +68,7 @@ defaults = {
     "iter_time": "200",
     "jobs": str(multiprocessing.cpu_count() + 1),
     "keymap": "",
+    "linux_tree": "none",
     "log": "$WORK/log.txt",
     "mirror_alpine": "http://dl-cdn.alpinelinux.org/alpine/",
     "mirror_postmarketos": "http://postmarketos.brixit.nl",

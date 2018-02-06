@@ -67,6 +67,27 @@ def _build_device_depends_note(args, pkgname):
                  " before building (old behavior: 'pmbootstrap build -i')")
 
 
+def _build_local_src_checks(args):
+    # Require the local Linux path to be set
+    if args.linux_tree == "none":
+        raise RuntimeError("Please specify the path to your local Linux tree"
+                           " in 'pmbootstrap init'.")
+
+    # Each APKBUILD must use PMB_LOCAL_SRC
+    for package in args.packages:
+        aport = pmb.build.other.find_aport(args, package)
+        path = aport + "/APKBUILD"
+        with open(path, "r") as handle:
+            if "PMB_LOCAL_SRC" in handle.read():
+                continue
+
+        raise RuntimeError("Package '" + package + "' does not use the"
+                           " PMB_LOCAL_SRC variable in the APKBUILD, so"
+                           " --local-src does not work with it. See"
+                           " 'linux-postmarketos-mainline' as example on how"
+                           " to use it.")
+
+
 def _parse_flavor(args):
     """
     Verify the flavor argument if specified, or return a default value.
@@ -120,11 +141,17 @@ def build(args):
         for package in args.packages:
             _build_device_depends_note(args, package)
 
+    # Local Linux tree
+    local_src = None
+    if args.local_src:
+        _build_local_src_checks(args)
+        local_src = args.linux_tree
+
     # Build all packages
     for package in args.packages:
         arch_package = args.arch or pmb.build.autodetect.arch(args, package)
         if not pmb.build.package(args, package, arch_package, args.force,
-                                 args.strict):
+                                 args.strict, local_src=local_src):
             logging.info("NOTE: Package '" + package + "' is up to date. Use"
                          " 'pmbootstrap build " + package + " --force'"
                          " if needed.")

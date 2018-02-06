@@ -166,10 +166,29 @@ def ask_for_qemu_native_mesa_driver(args, device, arch_native):
                       " pmb/config/__init__.py.")
 
 
+def ask_for_linux_tree(args):
+    logging.info("Path to the checked out mainline Linux source tree (useful"
+                 " for mainlining your device).")
+    while True:
+        ret = os.path.expanduser(pmb.helpers.cli.ask(args, "Linux tree", None,
+                                 args.linux_tree, False))
+
+        if ret == "none":
+            return "none"
+
+        # Sanity check with Kconfig file
+        kconfig_path = ret + "/Kconfig"
+        if os.path.exists(kconfig_path):
+            return ret
+        logging.fatal("ERROR: This does not look like a valid kernel source"
+                      " tree, missing this file: " + kconfig_path)
+
+
 def ask_for_build_options(args, cfg):
     # Allow to skip build options
     logging.info("Build options: Parallel jobs: " + args.jobs +
-                 ", ccache per arch: " + args.ccache_size)
+                 ", ccache per arch: " + args.ccache_size + ", Linux tree: " +
+                 args.linux_tree)
 
     if not pmb.helpers.cli.confirm(args, "Change them?",
                                    default=False):
@@ -191,6 +210,9 @@ def ask_for_build_options(args, cfg):
     answer = pmb.helpers.cli.ask(args, "Ccache size", None, args.ccache_size,
                                  lowercase_answer=False, validation_regex=regex)
     cfg["pmbootstrap"]["ccache_size"] = answer
+
+    # Linux source tree
+    cfg["pmbootstrap"]["linux_tree"] = ask_for_linux_tree(args)
 
 
 def frontend(args):

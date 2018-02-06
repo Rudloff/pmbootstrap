@@ -168,7 +168,15 @@ def test_questions(args, monkeypatch, tmpdir):
     assert cfg == {"pmbootstrap": {}}
 
     # Answer everything
-    answers = ["y", "5", "2G", "n"]
+    answers = ["y", "5", "2G", "none"]
     func(args, cfg)
     assert cfg == {"pmbootstrap": {"jobs": "5",
-                                   "ccache_size": "2G"}}
+                                   "ccache_size": "2G",
+                                   "linux_tree": "none"}}
+
+    # Linux tree
+    func = pmb.config.init.ask_for_linux_tree
+    linux_tree_valid = pmb_src + "/test/testdata/linux_tree_local"
+    linux_tree_invalid = pmb_src
+    answers = [linux_tree_invalid, linux_tree_valid]
+    assert func(args) == linux_tree_valid

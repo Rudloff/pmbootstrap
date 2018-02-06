@@ -321,6 +321,9 @@ def arguments():
                        " you don't need to build and install the kernel. But it"
                        " is incompatible with how Alpine's abuild handles it.",
                        dest="ignore_depends")
+    build.add_argument("-l", "--local-src", dest="local_src",
+                       action="store_true", help="use local kernel tree (as"
+                       " configured in 'pmbootstrap init')")
     for action in [checksum, build, aportgen]:
         action.add_argument("packages", nargs="+")
 

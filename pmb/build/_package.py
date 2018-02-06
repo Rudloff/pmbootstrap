@@ -154,7 +154,7 @@ def is_necessary_warn_depends(args, apkbuild, arch, force, depends_built):
 
 
 def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
-                  suffix="native", skip_init_buildenv=False):
+                  suffix="native", skip_init_buildenv=False, local_src=None):
     """
     Build all dependencies, check if we need to build at all (otherwise we've
     just initialized the build environment for nothing) and then setup the
@@ -165,6 +165,8 @@ def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
                                build environment. Use this when building
                                something during initialization of the build
                                environment (e.g. qemu aarch64 bug workaround)
+    :param local_src: mount this folder inside the building chroot and pass its
+                      location to abuild by exporting PMB_LOCAL_SRC.
     :returns: True when the build is necessary (otherwise False)
     """
     # Build dependencies (package arch)
@@ -197,6 +199,11 @@ def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
         if not strict and len(depends):
             pmb.chroot.apk.install(args, depends)
 
+    # Prepare local src
+    if local_src:
+        pmb.helpers.mount.bind(args, local_src, args.work + "/chroot_" +
+                               suffix + "/mnt/pmbootstrap-local-src")
+
     return True
 
 
@@ -218,13 +225,15 @@ def get_gcc_version(args, arch):
 
 
 def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
-               suffix="native"):
+               suffix="native", local_src=None):
     """
     Set up all environment variables and construct the abuild command (all
     depending on the cross-compiler method and target architecture), copy
     the aport to the chroot and execute abuild.
 
     :param cross: None, "native" or "distcc"
+    :param local_src: mount this folder inside the building chroot and pass its
+                      location to abuild by exporting PMB_LOCAL_SRC.
     :returns: (output, cmd, env), output is the destination apk path relative
               to the package folder ("x86_64/hello-1-r2.apk"). cmd and env are
               used by the test case, and they are the full abuild command and
@@ -252,6 +261,8 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
         env["CCACHE_PATH"] = "/usr/lib/arch-bin-masquerade/" + arch + ":/usr/bin"
         env["CCACHE_COMPILERCHECK"] = "string:" + get_gcc_version(args, arch)
         env["DISTCC_HOSTS"] = "127.0.0.1:" + args.port_distccd
+    if local_src:
+        env["PMB_LOCAL_SRC"] = "/mnt/pmbootstrap-local-src"
 
     # Build the abuild command
     cmd = []
@@ -293,7 +304,7 @@ def finish(args, apkbuild, arch, output, strict=False, suffix="native"):
 
 
 def package(args, pkgname, arch=None, force=False, strict=False,
-            skip_init_buildenv=False):
+            skip_init_buildenv=False, local_src=None):
     """
     Build a package and its dependencies with Alpine Linux' abuild.
 
@@ -306,6 +317,8 @@ def package(args, pkgname, arch=None, force=False, strict=False,
                                build environment. Use this when building
                                something during initialization of the build
                                environment (e.g. qemu aarch64 bug workaround)
+    :param local_src: mount this folder inside the building chroot and pass its
+                      location to abuild by exporting PMB_LOCAL_SRC.
     :returns: None if the build was not necessary
               output path relative to the packages folder ("armhf/ab-1-r2.apk")
     """
@@ -324,11 +337,11 @@ def package(args, pkgname, arch=None, force=False, strict=False,
     suffix = pmb.build.autodetect.suffix(args, apkbuild, arch)
     cross = pmb.build.autodetect.crosscompile(args, apkbuild, arch, suffix)
     if not init_buildenv(args, apkbuild, arch, strict, force, cross, suffix,
-                         skip_init_buildenv):
+                         skip_init_buildenv, local_src):
         return
 
     # Build and finish up
     (output, cmd, env) = run_abuild(args, apkbuild, arch, strict, force, cross,
-                                    suffix)
+                                    suffix, local_src)
     finish(args, apkbuild, arch, output, strict, suffix)
     return output
