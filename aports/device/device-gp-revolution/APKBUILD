@@ -1,0 +1,22 @@
+# Reference: <https://postmarketos.org/devicepkg>
+pkgname="device-gp-revolution"
+pkgdesc="Geeksphone Revolution"
+pkgver=0.1
+pkgrel=0
+url="https://postmarketos.org"
+license="MIT"
+arch="noarch"
+options="!check"
+depends="linux-gp-revolution mkbootimg mesa-dri-swrast"
+makedepends="devicepkg-dev"
+source="deviceinfo"
+
+build() {
+	devicepkg_build $startdir $pkgname
+}
+
+package() {
+	devicepkg_package $startdir $pkgname
+}
+
+sha512sums="f51e1a656d4406123cda85d754c289f34efefa34dbd41d209cfff015e6d9800e8509b98ea4367dccf322bd1839a2a7487faa1e4e7056d52a5fa45fe0047fcf6f  deviceinfo"

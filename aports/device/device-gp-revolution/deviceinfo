@@ -1,0 +1,32 @@
+# Reference: <https://postmarketos.org/deviceinfo>
+# Please use double quotes only. You can source this file in shell scripts.
+
+deviceinfo_format_version="0"
+deviceinfo_name="Geeksphone Revolution"
+deviceinfo_manufacturer="Geeksphone"
+deviceinfo_date=""
+deviceinfo_dtb=""
+deviceinfo_modules_initfs=""
+deviceinfo_external_disk_install="true"
+deviceinfo_arch="x86"
+
+# Device related
+deviceinfo_keyboard="false"
+deviceinfo_external_disk="true"
+deviceinfo_screen_width="960"
+deviceinfo_screen_height="540"
+deviceinfo_dev_touchscreen=""
+deviceinfo_dev_touchscreen_calibration=""
+deviceinfo_dev_keyboard=""
+
+# Bootloader related
+deviceinfo_flash_method="fastboot"
+deviceinfo_kernel_cmdline=""
+deviceinfo_generate_bootimg="false"
+deviceinfo_bootimg_qcdt="false"
+deviceinfo_flash_offset_base=""
+deviceinfo_flash_offset_kernel=""
+deviceinfo_flash_offset_ramdisk=""
+deviceinfo_flash_offset_second=""
+deviceinfo_flash_offset_tags=""
+deviceinfo_flash_pagesize="2048"
