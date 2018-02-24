@@ -1,0 +1,22 @@
+# Reference: <https://postmarketos.org/devicepkg>
+pkgname="device-sony-tetra"
+pkgdesc="Sony SmartWatch 3"
+pkgver=0.1
+pkgrel=0
+url="https://postmarketos.org"
+license="MIT"
+arch="noarch"
+options="!check"
+depends="linux-sony-tetra mkbootimg mesa-dri-swrast"
+makedepends="devicepkg-dev"
+source="deviceinfo"
+
+build() {
+	devicepkg_build $startdir $pkgname
+}
+
+package() {
+	devicepkg_package $startdir $pkgname
+}
+
+sha512sums="e4a244dd4a528c6f27ca5cc742eb0b19671b9b73cbb83aa713aa18300ec23cc5cba1f7e9770bb98991f554f0d5df57117529375b25eacb2877ea48b1654c177f  deviceinfo"
